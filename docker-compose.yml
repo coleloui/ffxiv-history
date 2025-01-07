@@ -1,6 +1,12 @@
-version: '3.7'
 services:
-  next-app:
+  development:
+    image: ffxiv-history
     build: .
+    command: sleep infinity
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
     ports:
       - '3000:3000'
+    restart: unless-stopped
