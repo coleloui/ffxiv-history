@@ -48,9 +48,26 @@ class WS {
         )
 
         this.ws?.addEventListener('message', (me) => {
+          const useableLines = [20, 21, 22, 23, 25]
           const data = JSON.parse(me.data)
-          const lineId = data.line[0]
-          //   filter by 21, 22, 23 in slot 0
+          const lineId = parseInt(data.line[0])
+          const lineCaster = data.line[3]
+          const lineData = data.line
+          if (
+            useableLines.includes(lineId) === false &&
+            lineCaster !== 'Wagyu Tallow'
+          ) {
+            return
+          } else {
+            const data = {}
+            if(lineId === 20){
+              const castTime = data.line[8]
+              
+            }
+            const target = data.line[7]
+            const spellID = data.line[4]
+            console.log({'target':})
+          }
         })
       })
 

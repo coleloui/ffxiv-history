@@ -6,7 +6,7 @@ export const ActComponent = () => {
     useEffect(() => {
         const ws = new WS()
 
-        ws.connect("ws://127.0.0.1:10501/ws")
+        ws.connect()
 
         return () => {
             ws.close()
