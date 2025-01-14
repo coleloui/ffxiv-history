@@ -1,19 +1,20 @@
-/**
- * Casts a value to a specific variable type
- *
- * @param {*} val
- * @returns {*}
- */
-function _cast(val: string | number) {
-  // Cast Numbers
-  if (!Number.isNaN(+val)) return +val
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// /**
+//  * Casts a value to a specific variable type
+//  *
+//  * @param {*} val
+//  * @returns {*}
+//  */
+// function _cast(val: string | number) {
+//   // Cast Numbers
+//   if (!Number.isNaN(+val)) return +val
 
-  // Format Strings
-  if (typeof val === 'string') return val.toLowerCase()
+//   // Format Strings
+//   if (typeof val === 'string') return val.toLowerCase()
 
-  // Default
-  return val
-}
+//   // Default
+//   return val
+// }
 
 // /**
 //  * @param {Array} fields
@@ -222,12 +223,11 @@ export function getObjValue(obj = {}, _path = '', opts = { split: true }) {
   if (obj === undefined) return undefined
 
   // Do not alter if already the proper type
-  let path = !Array.isArray(_path) ? undefined : _path
-
-  if (path === undefined) {
-    // Convert to an array
-    path = opts.split ? _path.toString().split('.') : [_path.toString()]
-  }
+  const path = Array.isArray(_path)
+    ? _path
+    : opts.split
+    ? _path.toString().split('.')
+    : [_path.toString()]
 
   // If the prop does not exist, return undefined
   // Otherwise, return the value
@@ -242,57 +242,68 @@ export function getObjValue(obj = {}, _path = '', opts = { split: true }) {
  *
  * @param {object} obj The object to traverse
  * @param {Array | string} [_path] The path to the value
- * @param {*} val The value to store
+ * @param {string | number} val The value to store
  * @param {object} [opts] Additional options
  * @param {object} [opts.split=true]
  * @returns {object}
  */
-export function setObjValue(
-  obj = {},
-  _path = [],
-  val = undefined,
-  opts = { split: true }
-) {
+export function setObjValue<T extends Record<string, any>>(
+  obj: T,
+  _path: string | string[] = '',
+  val: string | number | boolean = '',
+  opts: { split?: boolean } = { split: true }
+): T {
   // Do not alter if already the proper type
-  let path = !Array.isArray(_path) ? undefined : _path
-
-  if (path === undefined) {
-    // Convert to an array
-    path = opts.split ? _path.toString().split('.') : [_path.toString()]
-  }
+  const path: string[] = Array.isArray(_path)
+    ? _path
+    : opts.split
+    ? _path.toString().split('.')
+    : [_path.toString()]
 
   if (!path.length) {
     // Edge case: No path length. Just return
     return obj
   }
+
   if (path.length === 1) {
     // When there is no more depth to recurse, assign the value
-    obj[path] = val
+    obj[path[0] as keyof T] = val as T[(typeof path)[0]]
     return obj
   }
 
   // Get the prop
   const field = path.shift()
 
-  if (field.includes('[')) {
+  if (field && field.includes('[')) {
     // Array, not an Object
-    const [shortField, key] = field.match(/\w+\b/g)
+    const matches = field.match(/\w+\b/g)
+    const shortField = matches ? matches[0] : field
+    const key = matches ? matches[1] : undefined
 
     // If the prop does not exist, create it
-    if (!Object.prototype.hasOwnProperty.call(obj, shortField))
-      obj[shortField] = []
+    if (!Object.prototype.hasOwnProperty.call(obj, shortField)) {
+      obj[shortField as keyof T] = [] as any
+    }
 
     // Instantiate the array index, if required
-    if (!obj[shortField][key || 0]) obj[shortField][key || 0] = {}
+    if (!obj[shortField][key || 0]) {
+      obj[shortField][key || 0] = {}
+    }
 
     // Recurse
-    obj[shortField][key] = setObjValue(obj[shortField][key], path, val)
+    obj[shortField][key || 0] = setObjValue(
+      obj[shortField][key || 0],
+      path,
+      val
+    )
   } else {
     // If the prop does not exist, create it
-    if (!Object.prototype.hasOwnProperty.call(obj, field)) obj[field] = {}
+    if (!Object.prototype.hasOwnProperty.call(obj, field!)) {
+      obj[field! as keyof T] = {} as any
+    }
 
     // Recurse
-    obj[field] = setObjValue(obj[field], path, val)
+    obj[field! as keyof T] = setObjValue(obj[field!], path, val)
   }
 
   return obj
