@@ -178,7 +178,12 @@ export function isManager(opts: {
  * @param {boolean} [recursed] = false
  * @returns {*}
  */
-export function getObjPaths(obj: object, fn, path = '', recursed = false) {
+export function getObjPaths(
+  obj: object,
+  fn: (arg0: string | null, arg1: object) => void,
+  path = '',
+  recursed = false
+) {
   if (!recursed && (typeof obj).toLowerCase() !== 'object') {
     return fn(null, obj)
   }
