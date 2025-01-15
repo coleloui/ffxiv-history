@@ -1,4 +1,6 @@
 // creating WS class
+
+import { setObjValue } from './utils'
 class WS {
   // Set Types
   ws: WebSocket | undefined
@@ -53,20 +55,19 @@ class WS {
           const lineId = parseInt(data.line[0])
           const lineCaster = data.line[3]
           const lineData = data.line
-          if (
-            useableLines.includes(lineId) === false &&
-            lineCaster !== 'Wagyu Tallow'
-          ) {
-            return
+          if (useableLines.includes(lineId) === false) {
+            return false
+          } else if (lineCaster !== 'Wagyu Tallow') {
+            return false
           } else {
-            const data = {}
-            if(lineId === 20){
-              const castTime = data.line[8]
-              
+            const rowData = {}
+            if (lineId === 20) {
+              setObjValue(rowData, 'cast time', lineData[8])
             }
-            const target = data.line[7]
-            const spellID = data.line[4]
-            console.log({'target':})
+            setObjValue(rowData, 'target', lineData[7])
+            setObjValue(rowData, 'spell id', lineData[4])
+            console.log('linedata', lineData)
+            // console.log('rowdata', rowData)
           }
         })
       })
